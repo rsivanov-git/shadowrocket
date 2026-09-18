@@ -29,7 +29,7 @@ Synchronization baseline: Surge commit `4cecfa98db1ca7dbe6395774b424cf7ad6ab721f
 | `PROXY = select, DIRECT, REJECT` placeholder | Keep Shadowrocket's built-in PROXY; copying that group would omit actual proxy nodes. |
 | `loglevel`, `proxy-test-url`, `internet-test-url` | Not copied because equivalent General keys were not verified for Shadowrocket. Set its connectivity-test URL in the app to `http://www.gstatic.com/generate_204` if desired. |
 
-`hijack-dns = :53`, `private-ip-answer = true`, and `dns-direct-system = false` retain Shadowrocket-specific DNS handling. Direct DNS failures no longer trigger proxy fallback. The obsolete `bypass-system` flag and unrelated rewrite/ICMP flags were removed. The pre-existing `RULE-SET,SYSTEM,DIRECT` is retained; its actual contents are app-specific.
+`private-ip-answer = true` and `dns-direct-system = false` retain Shadowrocket-specific DNS handling. The explicit `hijack-dns` override was removed to match the Surge baseline. Direct DNS failures no longer trigger proxy fallback. The obsolete `bypass-system` flag and unrelated rewrite/ICMP flags were removed. The pre-existing `RULE-SET,SYSTEM,DIRECT` is retained; its actual contents are app-specific.
 
 No private node credentials, Tailscale configuration, or alternative Surge profiles (`DefaultTailnet`, `DefaultChinese`, `DefaultWhiteLists`) are imported.
 
