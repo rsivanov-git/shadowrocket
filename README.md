@@ -2,18 +2,24 @@
 
 `Default.conf` follows the routing policy of [surge/Default.conf](https://github.com/rsivanov-git/surge/blob/main/Default.conf), adapted for Shadowrocket.
 
-Synchronization baseline: Surge commit `4cecfa98db1ca7dbe6395774b424cf7ad6ab721f` (2026-09-18 comparison).
+Initial configuration adaptation baseline: Surge commit `4cecfa98db1ca7dbe6395774b424cf7ad6ab721f` (2026-09-18 comparison).
 
 ## Routing
 
 - `guzzoni.apple.com` uses PROXY before the existing SYSTEM rule.
 - `_test.local` is rejected using pre-matching.
 - Explicit local-domain and IPv4/IPv6 rules provide DIRECT access to local networks, loopback, link-local and multicast addresses. They are a portable LAN approximation, not a claim that the two apps' built-in LAN lists are identical.
-- Connectivity checks, NTP, `Direct.list`, Russian domains and already-resolved Russian IPs use DIRECT.
+- Connectivity checks, NTP, the shared Surge `Direct.txt` rule set, Russian domains and already-resolved Russian IPs use DIRECT.
 - All remaining traffic uses Shadowrocket's built-in PROXY policy (the selected node).
 - The blanket Apple DIRECT rule and obsolete DNS-domain exceptions have been removed.
 
-`Direct.list` and `Proxied.list` are synchronized copies of Surge's `Direct.txt` and `Proxied.txt`. As in the Surge baseline, **Proxied.list is not loaded by Default.conf**. It remains available for other profiles. Habr is no longer forcibly proxied; `habr.com` is explicitly DIRECT.
+`Default.conf` loads [Direct.txt from the Surge repository](https://github.com/rsivanov-git/surge/blob/main/Direct.txt) directly:
+
+```ini
+RULE-SET,https://raw.githubusercontent.com/rsivanov-git/surge/main/Direct.txt,DIRECT
+```
+
+The Surge repository is the single source for this list; there are no local `Direct.list` or `Proxied.list` copies. Changes to `surge/main/Direct.txt` take effect after Shadowrocket refreshes the remote rule set, without copying files or editing this profile. This list follows Surge's `main` branch rather than the initial adaptation commit above. As in the Surge baseline, `Proxied.txt` is not loaded by `Default.conf`.
 
 ## General settings and intentional differences
 
@@ -35,9 +41,9 @@ No private node credentials, Tailscale configuration, or alternative Surge profi
 
 ## Validation
 
-Static checks cover rule structure, CIDR validity, ordering, references and list parity. This repository does not contain a Shadowrocket runtime, so successful import and actual routing must be checked in the app before rollout.
+Static validation should cover rule structure, CIDR validity, ordering and remote rule-set references; local list-parity checks are no longer needed. This repository does not contain a Shadowrocket runtime, so successful import and actual routing must be checked in the app before rollout.
 
-1. Import the branch version as a separate profile and refresh its remote rule sets. For testing before merge, temporarily point its `Direct.list` URL to the same branch; the shipped URL deliberately targets `main`.
+1. Import `Default.conf` and refresh its remote rule sets. Confirm that `Direct.txt` loads from `rsivanov-git/surge/main`. When testing a Shadowrocket branch, keep this shared Surge URL unchanged unless intentionally testing a separate Surge rule-set revision.
 2. Select a working proxy node and use configuration-based routing.
 3. Check Siri (`guzzoni.apple.com`): PROXY; `habr.com`: DIRECT; `_test.local`: REJECT; a foreign site outside DIRECT lists: PROXY.
 4. Check local router/NAS access, connectivity checks and NTP. Confirm no remote rule-set download or parse errors, including SYSTEM.
