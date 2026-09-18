@@ -1,20 +1,14 @@
-# Blocked russian sites
-DOMAIN-SUFFIX,habr.ru
-DOMAIN-SUFFIX,habr.com
-
 # Apple
 DOMAIN-SUFFIX,weatherkit.apple.com
 DOMAIN-SUFFIX,weather-analytics-events.apple.com
 DOMAIN-SUFFIX,weather-map2.apple.com
+DOMAIN-SUFFIX,weather-edge.apple.com
 DOMAIN,apple.com
 DOMAIN-SUFFIX,apps.apple.com
 DOMAIN-SUFFIX,music.apple.com
 DOMAIN-SUFFIX,media.apple.com
 DOMAIN-SUFFIX,itunes.apple.com
+#DOMAIN-SUFFIX,gateway.icloud.com
+#DOMAIN-SUFFIX,icloud-content.com
 DOMAIN-SUFFIX,mzstatic.com
-#DOMAIN-SUFFIX,apple-relay.akamaized.net
-#DOMAIN-SUFFIX,apple-relay.apple.com
-#DOMAIN-SUFFIX,apple-relay.cloudflare.com
-#DOMAIN-SUFFIX,apple-relay.fastly-edge.com
-#DOMAIN-SUFFIX,apple-relay.mask.apple-dns.net
-#DOMAIN-WILDCARD,*smp-device.apple.com
+DOMAIN-WILDCARD,*smp-device.apple.com
