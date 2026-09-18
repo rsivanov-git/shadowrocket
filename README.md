@@ -6,6 +6,8 @@ Initial configuration adaptation baseline: Surge commit `4cecfa98db1ca7dbe639577
 
 ## Routing
 
+- MagicDNS names under `ts.net` and Tailscale IPv4/IPv6 destinations use the built-in TAILSCALE policy before SYSTEM and local DIRECT rules.
+
 - `guzzoni.apple.com` uses PROXY before the existing SYSTEM rule.
 - `_test.local` is rejected using pre-matching.
 - Explicit local-domain and IPv4/IPv6 rules provide DIRECT access to local networks, loopback, link-local and multicast addresses. They are a portable LAN approximation, not a claim that the two apps' built-in LAN lists are identical.
@@ -37,7 +39,27 @@ The Surge repository is the single source for this list; there are no local `Dir
 
 `private-ip-answer = true` and `dns-direct-system = false` retain Shadowrocket-specific DNS handling. The explicit `hijack-dns` override was removed to match the Surge baseline. Direct DNS failures no longer trigger proxy fallback. The obsolete `bypass-system` flag and unrelated rewrite/ICMP flags were removed. The pre-existing `RULE-SET,SYSTEM,DIRECT` is retained; its actual contents are app-specific.
 
-No private node credentials, Tailscale configuration, or alternative Surge profiles (`DefaultTailnet`, `DefaultChinese`, `DefaultWhiteLists`) are imported.
+No private node credentials, Tailscale authentication keys, or alternative Surge profiles (`DefaultTailnet`, `DefaultChinese`, `DefaultWhiteLists`) are imported.
+
+## Tailscale access
+
+The first rules in `[Rule]` are:
+
+```ini
+DOMAIN-SUFFIX,ts.net,TAILSCALE
+IP-CIDR,100.64.0.0/10,TAILSCALE,no-resolve
+IP-CIDR6,fd7a:115c:a1e0::/48,TAILSCALE,no-resolve
+```
+
+Enable and authenticate Shadowrocket's built-in Tailscale module in the app's Tailscale settings. Enable MagicDNS in the tailnet. The rules alone do not join a tailnet or grant access: device/service availability, ACLs/grants and the embedded client's capabilities still apply.
+
+Use full MagicDNS names such as `device.<tailnet>.ts.net` or the full service name shown by Tailscale. A bare name such as `homenas` does not match the suffix rule; short-name expansion depends on client DNS/search-domain support. Do not send private MagicDNS names to public NextDNS as a substitute for the Tailscale module's name resolution.
+
+The IPv4 rule covers the Tailscale CGNAT range (including standard service VIPs and `100.100.100.100`); it also captures non-Tailscale destinations in that range, so add a more specific exception if another network uses CGNAT addresses you must reach. The IPv6 rule must precede `fc00::/7,DIRECT`. Do not exclude these ranges from the TUN. No global DNS hijack or global DNS-server change is needed for these routing rules.
+
+Private LAN IPs advertised by subnet routers, such as `192.168.x.x`, are outside these ranges. To access one by IP through Tailscale, enable acceptance of Tailscale subnet routes, approve the advertised route and allow it in the tailnet policy, then add a specific `IP-CIDR,<host>/32,TAILSCALE,no-resolve` rule above the local DIRECT rules. This profile does not redirect all private networks into Tailscale.
+
+After updating the profile, reconnect and check a device and a service by full MagicDNS name and by their Tailscale IPs; confirm TAILSCALE in the connection log. Runtime connectivity has not been tested from this repository.
 
 ## Validation
 
