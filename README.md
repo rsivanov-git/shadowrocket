@@ -39,7 +39,13 @@ The Surge repository is the single source for this list; there are no local `Dir
 
 `private-ip-answer = true` and `dns-direct-system = false` retain Shadowrocket-specific DNS handling. The explicit `hijack-dns` override was removed to match the Surge baseline. Direct DNS failures no longer trigger proxy fallback. The obsolete `bypass-system` flag and unrelated rewrite/ICMP flags were removed. The pre-existing `RULE-SET,SYSTEM,DIRECT` is retained; its actual contents are app-specific.
 
-No private node credentials, Tailscale authentication keys, or alternative Surge profiles (`DefaultTailnet`, `DefaultChinese`, `DefaultWhiteLists`) are imported.
+No private node credentials or Tailscale authentication keys are imported. `DefaultWhiteLists.conf` is also maintained in this repository as the Shadowrocket adaptation of the Surge profile with the same name.
+
+## DefaultWhiteLists.conf
+
+`DefaultWhiteLists.conf` mirrors the explicit whitelist rules from `surge/DefaultWhiteLists.conf` and uses the same Shadowrocket-specific Tailscale and LAN adaptations as `Default.conf`.
+
+Surge applies several broad DIRECT rules only when the network is **not** cellular via `SUBNET,TYPE:CELLULAR`. Shadowrocket does not expose that Surge rule type in profile syntax, so this profile represents the **cellular behavior** of the Surge profile: the explicit whitelist stays DIRECT and unmatched traffic falls through to `FINAL,PROXY`. To reproduce the Surge network switch, use Shadowrocket **Scene** to select `DefaultWhiteLists.conf` for cellular and `Default.conf` for Wi-Fi/default networks.
 
 ## Tailscale access
 
